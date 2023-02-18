@@ -6,7 +6,7 @@ print()
 from tkinter import *
 import random
 
-GAME_WIDTH = 700
+GAME_WIDTH = 1000
 GAME_HEIGHT = 700
 SPEED = 50
 SPACE_SIZE = 50
@@ -31,6 +31,7 @@ class Snake:
 
 class Food:
 
+
     def __int__(self):
 
         x = random.randint(0, (GAME_WIDTH / SPACE_SIZE)-1) * SPACE_SIZE
@@ -38,7 +39,7 @@ class Food:
 
         self.coordinates = [x, y]
 
-        canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill= FOOD_COLOR, tag="Food")
+        canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD_COLOR, tag="food")
 
 def next_turn():
 
@@ -59,24 +60,65 @@ def next_turn():
 
     snake.squares.insert(0, square)
 
-    window.after(SPEED, next_turn, snake, food)
+    if x == Food.coordinates[0] and y == Food.coordinates[1]:
 
-    del snake.coordinates[-1]
+        global score
 
-    canvas.delete(snake.squares[-1])
+        score += 1
 
-    del snake.squares[-1]
+        label.config(text="Score:{}".format(score))
 
-    window.after(SPEED, next_turn, snake, food)
+        canvas.delete("food")
+
+        food= Food()
+
+    else:
+        del snake.coordinates[-1]
+
+        canvas.delete(snake.squares[-1])
+
+        del snake.squares[-1]
+
+    if check_collisions(snake):
+    game_over
 
 def change_direction(new_direction):
-    pass
 
-def check_collisions():
-    pass
+    global direction
+
+    if new_direction == 'left':
+        if direction != 'right':
+            direction = new_direction
+    elif new_direction == 'right':
+        if direction != 'left':
+            direction = new_direction
+    elif new_direction == 'up':
+        if direction != 'down':
+            direction = new_direction
+    elif new_direction == 'down':
+        if direction != 'up':
+            direction = new_direction
+
+
+def check_collisions(snake):
+
+    x, y = snake.coordinates[0]
+
+    if x < 0 or x >= GAME_WIDTH:
+        return True
+    elif y < 0 or y >= GAME_HEIGHT:
+        return True
+
+    for body_part in snake.coordinates[1:]:
+        if x == body_part[0] and y == body_part[1]:
+            print ("GAME OVER")
+            return True
+
+        return  False
+
 
 def game_over():
-    pass
+
 
 window = Tk()
 window.title("Snake Game")
@@ -110,7 +152,6 @@ window.bind('<Down>', lambda event: change_direction('down'))
 
 snake = Snake()
 food = Food()
-
 next_turn(snake, food)
 
 window.mainloop()
