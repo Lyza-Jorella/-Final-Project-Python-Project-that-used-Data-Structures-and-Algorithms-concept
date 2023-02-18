@@ -8,9 +8,9 @@ import random
 
 GAME_WIDTH = 1000
 GAME_HEIGHT = 700
-SPEED = 50
+SPEED = 100
 SPACE_SIZE = 50
-BODY_PARTS = 3
+BODY_PARTS = 1
 SNAKE_COLOR = "#00FF00"
 FOOD_COLOR = "#FF0000"
 BACKGROUND_COLOR = "#000000"
@@ -32,16 +32,16 @@ class Snake:
 class Food:
 
 
-    def __int__(self):
+    def __init__(self):
 
         x = random.randint(0, (GAME_WIDTH / SPACE_SIZE)-1) * SPACE_SIZE
-        y = random.randint(0, (GAME_HEIGHT / SPACE_SIZE) - 1) * SPACE_SIZE
+        y = random.randint(0, (GAME_HEIGHT / SPACE_SIZE)-1) * SPACE_SIZE
 
         self.coordinates = [x, y]
 
         canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD_COLOR, tag="food")
 
-def next_turn():
+def next_turn(snake, food):
 
     x, y = snake.coordinates[0]
 
@@ -54,33 +54,7 @@ def next_turn():
     elif direction == "right":
         x += SPACE_SIZE
 
-    snake.coordinates.insert(0, (x, y))
 
-    square = canvas.create_rectangle(x,y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR)
-
-    snake.squares.insert(0, square)
-
-    if x == Food.coordinates[0] and y == Food.coordinates[1]:
-
-        global score
-
-        score += 1
-
-        label.config(text="Score:{}".format(score))
-
-        canvas.delete("food")
-
-        food= Food()
-
-    else:
-        del snake.coordinates[-1]
-
-        canvas.delete(snake.squares[-1])
-
-        del snake.squares[-1]
-
-    if check_collisions(snake):
-    game_over
 
 def change_direction(new_direction):
 
@@ -114,11 +88,15 @@ def check_collisions(snake):
             print ("GAME OVER")
             return True
 
-        return  False
+    return  False
 
 
 def game_over():
 
+
+    canvas.delete(ALL)
+    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2,
+                       font=('consolas',70), text="GAME OVER", fill="red", tag="gameover")
 
 window = Tk()
 window.title("Snake Game")
@@ -152,6 +130,7 @@ window.bind('<Down>', lambda event: change_direction('down'))
 
 snake = Snake()
 food = Food()
+
 next_turn(snake, food)
 
 window.mainloop()
